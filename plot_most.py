@@ -1,5 +1,5 @@
 '''
-This script reads a VULCAN output (.vul) file using pickle and plots the X most abundant 
+This script reads a VULCAN output (.vul) file using pickle and plots the X most abundant
 chemical species.
 Plots are saved in the folder assigned in vulcan_cfg.py with the default plot_dir = 'plot/'
 '''
@@ -22,9 +22,9 @@ import matplotlib
 matplotlib.use('Agg')
 
 # Setting system arguments
-vul_data = sys.argv[1]		 # .vul file to use
-num_spec = sys.argv[2]		 # How many species to plot
-plot_name = sys.argv[3] 	 # Name of plot
+vul_data = sys.argv[1]           # .vul file to use
+num_spec = sys.argv[2]           # How many species to plot
+plot_name = sys.argv[3]          # Name of plot
 
 # Setting plot directory
 plot_dir = '../' + vulcan_cfg.plot_dir
@@ -42,19 +42,34 @@ ymix = data['variable']['ymix']
 species = data['variable']['species']
 avg_mix = np.mean(ymix, axis=0)
 
+alt = data['atm']['zco'][1:]/1.e5
+with np.errstate(invalid='ignore'):
+        avg_alt = (alt[:, None] * ymix).sum(axis=0) / ymix.sum(axis=0)
+
+
 high_mix = np.argsort(avg_mix)[-int(num_spec):][::-1]
 high_mix_spec = [species[i] for i in high_mix]
 high_mix_val = avg_mix[high_mix]
+alt_val = avg_alt[high_mix]
 
 # Plotting
-plt.figure(figsize=(8,5))
-plt.bar(range(int(num_spec)),high_mix_val,color='midnightblue')
-plt.yscale('log')
-plt.xticks(range(int(num_spec)), high_mix_spec, rotation=45, ha='right')
-plt.ylabel("Average Mixing Ratio")
+fig, ax1 = plt.subplots()
+ax2 = ax1.twinx()
+
+ax1.bar(range(int(num_spec)), high_mix_val, color='midnightblue', label = 'Mixing Ratio')
+ax1.set_ylabel("Average Mixing Ratio")
+ax1.set_yscale('log')
+ax2.plot(range(int(num_spec)), alt_val, 's', ls='None', color='red', label = 'Altitude')
+ax2.plot(range(int(num_spec)), alt_val, ls = '--', alpha=0.5, color='red')
+ax2.set_ylabel('Mean Altitude (km)')
+ax1.set_xticks(range(int(num_spec)))
+ax1.set_xticklabels(high_mix_spec, rotation=45, ha='right')
+ax1.grid(True,axis='y',ls='--',alpha=0.7)
+h1, l1 = ax1.get_legend_handles_labels()
+h2, l2 = ax2.get_legend_handles_labels()
+ax1.legend(h1+h2,l1+l2, loc='best')
 plt.tight_layout()
 
-out = os.path.join(plot_dir, f"{plot_name}_most.png")
+out = os.path.join(plot_dir, f"{plot_name}.png")
 plt.savefig(out, bbox_inches='tight', dpi=300)
 print(f"Bar chart saved to {out}")
-sys.exit(0)
