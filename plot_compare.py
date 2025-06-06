@@ -1,6 +1,6 @@
 '''
 This script reads two VULCAN output (.vul) files using pickle and plots the species volumn mixing
-ratios as a function of pressure to compare results. 
+ratios as a function of pressure to compare results.
 Plots are saved in the folder assigned in vulcan_cfg.py, with the default plot_dir = 'plot/'
 '''
 
@@ -10,6 +10,7 @@ sys.path.insert(0, '../') # including the upper level of directory for the path 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.legend as lg
+from matplotlib.lines import Line2D
 import vulcan_cfg
 try: from PIL import image
 except ImportError:
@@ -27,12 +28,16 @@ else: use_height = False
 
 # Setting the 2nd input argument as the filename of the first vulcan output
 vul_1_data = sys.argv[1]
-# Setting the 3rd input argument as the filename of the second vulcan output
-vul_2_data = sys.argv[2]
-# Setting the 4th input argument as the species names to be plotted (separated by ,)
-plot_spec = sys.argv[3]
-# Setting the 5th input argument as the output eps filename
-plot_name = sys.argv[4]
+# Setting the 3rd input argument as the label for the first vulcan output
+label1 = sys.argv[2]
+# Setting the 4th input argument as the filename of the second vulcan output
+vul_2_data = sys.argv[3]
+# Setting the 5th input argument as the label for the second vulcan output
+label2 = sys.argv[4]
+# Setting the 6th input argument as the species names to be plotted (separated by ,)
+plot_spec = sys.argv[5]
+# Setting the 7th input argument as the output eps filename
+plot_name = sys.argv[6]
 
 plot_dir = '../' + vulcan_cfg.plot_dir
 # Checking if the plot folder exists
@@ -80,14 +85,12 @@ for color_index, sp in enumerate(plot_spec):
     if sp in tex_labels: sp_lab = tex_labels[sp]
     else: sp_lab = sp
 
-    vulcan_spec = vulcan_1_spec
-
     if use_height == False:
-        plt.plot(vul_1_data['variable']['ymix'][:,vulcan_spec.index(sp)], vul_1_data['atm']['pco']/1.e6, color=tableau20[color_index], label=sp_lab, lw=1.5)
-        plt.plot(vul_2_data['variable']['ymix'][:,vulcan_spec.index(sp)], vul_2_data['atm']['pco']/1.e6, color=tableau20[color_index], lw=1.5, ls='--')
+        plt.plot(vul_1_data['variable']['ymix'][:,vulcan_1_spec.index(sp)], vul_1_data['atm']['pco']/1.e6, color=tableau20[color_index], label=sp_lab, lw=1.5)
+        plt.plot(vul_2_data['variable']['ymix'][:,vulcan_2_spec.index(sp)], vul_2_data['atm']['pco']/1.e6, color=tableau20[color_index], lw=1.5, ls='--')
     else:
-        plt.plot(vul_1_data['variable']['ymix'][:,vulcan_spec.index(sp)], vul_1_data['atm']['zco'][1:]/1.e5, color=tableau20[color_index], label=sp_lab, lw=1.5)
-        plt.plot(vul_2_data['variable']['ymix'][:,vulcan_spec.index(sp)], vul_2_data['atm']['zco'][1:]/1.e5, color=tableau20[color_index],  lw=1.5, ls='--')
+        plt.plot(vul_1_data['variable']['ymix'][:,vulcan_1_spec.index(sp)], vul_1_data['atm']['zco'][1:]/1.e5, color=tableau20[color_index], label=sp_lab, lw=1.5)
+        plt.plot(vul_2_data['variable']['ymix'][:,vulcan_2_spec.index(sp)], vul_2_data['atm']['zco'][1:]/1.e5, color=tableau20[color_index],  lw=1.5, ls='--')
 
 
 if use_height == False:
@@ -103,15 +106,16 @@ plt.xlabel("Mixing Ratio")
 
 plt.gca().set_xscale('log')
 plt.xlim((1.E-12, 1.e-2))
-plt.legend(bbox_to_anchor=(1.05,1), loc='upper left', borderaxespad=0.)
-# handles, labels = plt.gca().get_legend_handles_labels()
-# display = range(len(sp_list))
-# #Create custom artists
-# art0 = plt.Line2D((0,0),(0,0), ls='None')
-# Artist1 = plt.Line2D(range(10),range(10), color='black')
-# Artist2 = plt.Line2D((0,1),(0,0), color='black', ls='--',lw=1.5)
-# plt.legend([Artist1,Artist2],['Equilibrium','Kinetics'], frameon=False, prop={'size':12}, loc='best')
+spec_legend = plt.legend(bbox_to_anchor=(1.05,1), loc='upper left', borderaxespad=0.)
+
+solid = Line2D([],[],color='black',lw=1.5,ls='-',label=label1)
+dashed = Line2D([],[],color='black',lw=1.5,ls='--',label=label2)
+
+ls_legend = plt.legend(bbox_to_anchor=(1.05,0.),handles=[solid,dashed],loc='lower left',borderaxespad=0.)
+
+plt.gca().add_artist(spec_legend)
 
 output_png = os.path.abspath(os.path.join(plot_dir, f"{plot_name}.png"))
 plt.savefig(output_png, bbox_inches='tight',dpi=300)
 print(f"Saved plot to {output_png}")
+~
