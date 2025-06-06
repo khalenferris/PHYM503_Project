@@ -28,14 +28,22 @@ else: use_height = False
 
 # Setting the 2nd input argument as the filename of the first vulcan output
 vul_1_data = sys.argv[1]
+
 # Setting the 3rd input argument as the label for the first vulcan output
 label1 = sys.argv[2]
+
 # Setting the 4th input argument as the filename of the second vulcan output
 vul_2_data = sys.argv[3]
+
 # Setting the 5th input argument as the label for the second vulcan output
 label2 = sys.argv[4]
-# Setting the 6th input argument as the species names to be plotted (separated by ,)
+
+# Setting the 6th input argument as the species names to be plotted separated by ,
+# entering the 6th input argument as 'default' will return the standard list of species used
 plot_spec = sys.argv[5]
+if plot_spec == 'default':
+        plot_spec = 'CO,CO2,H2O,HCN,N2O,NO,H2O_l_s,CH4,C2H6'
+    
 # Setting the 7th input argument as the output eps filename
 plot_name = sys.argv[6]
 
