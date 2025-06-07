@@ -28,22 +28,20 @@ else: use_height = False
 
 # Setting the 2nd input argument as the filename of the first vulcan output
 vul_1_data = sys.argv[1]
-
 # Setting the 3rd input argument as the label for the first vulcan output
 label1 = sys.argv[2]
-
 # Setting the 4th input argument as the filename of the second vulcan output
 vul_2_data = sys.argv[3]
-
 # Setting the 5th input argument as the label for the second vulcan output
 label2 = sys.argv[4]
-
-# Setting the 6th input argument as the species names to be plotted separated by ,
-# entering the 6th input argument as 'default' will return the standard list of species used
+# Setting the 6th input argument as the species names to be plotted (separated by ,)
 plot_spec = sys.argv[5]
+
 if plot_spec == 'default':
         plot_spec = 'CO,CO2,H2O,HCN,N2O,NO,H2O_l_s,CH4,C2H6'
-    
+if plot_spec == 'pbchem':
+        plot_spec = 'CH4,HCN,H2CO,C2H6,HC3N'
+
 # Setting the 7th input argument as the output eps filename
 plot_name = sys.argv[6]
 
@@ -110,7 +108,6 @@ else:
     plt.ylim((vul_1_data['atm']['zmco'][0]/1e5,vul_1_data['atm']['zmco'][-1]/1e5))
     plt.ylabel("Altitude (km)")
 plt.xlabel("Mixing Ratio")
-#plt.title('T1400')
 
 plt.gca().set_xscale('log')
 plt.xlim((1.E-12, 1.e-2))
@@ -123,7 +120,9 @@ ls_legend = plt.legend(bbox_to_anchor=(1.05,0.),handles=[solid,dashed],loc='lowe
 
 plt.gca().add_artist(spec_legend)
 
-output_png = os.path.abspath(os.path.join(plot_dir, f"{plot_name}.png"))
-plt.savefig(output_png, bbox_inches='tight',dpi=300)
-print(f"Saved plot to {output_png}")
+output_pdf = os.path.abspath(os.path.join(plot_dir, f"{plot_name}.pdf"))
+plt.savefig(output_pdf, bbox_inches='tight',dpi=300)
+print(f"Saved plot to {output_pdf}")
+~
+~
 ~
